@@ -23,6 +23,10 @@ import androidx.room.Room
 import com.example.littlelemon.ui.theme.LittleLemonTheme
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
+import io.ktor.client.request.get
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
@@ -40,11 +44,13 @@ class MainActivity : ComponentActivity() {
         Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database").build()
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             LittleLemonTheme {
                 // add databaseMenuItems code here
+                val databaseMenuItems by database.menuItemDao().getAll().observeAsState(emptyList())
 
                 // add orderMenuItems variable here
 
@@ -67,6 +73,9 @@ class MainActivity : ComponentActivity() {
                     // Add OutlinedTextField
 
                     // add is not empty check here
+                    if (databaseMenuItems.isNotEmpty()) {
+                        MenuItemsList(databaseMenuItems)
+                    }
                 }
             }
         }
@@ -74,13 +83,19 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             if (database.menuItemDao().isEmpty()) {
                 // add code here
+
+                val menuItems = fetchMenu()
+                saveMenuToDatabase(menuItems)
             }
         }
     }
 
-    private suspend fun fetchMenu(): List<MenuItemNetwork> {
-        TODO("Retrieve data")
-        // data URL: https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/littleLemonSimpleMenu.json
+    private suspend fun fetchMenu(): List<MenuItemNetwork> { 
+        val response: MenuNetwork =
+            httpClient.get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/littleLemonSimpleMenu.json")
+                .body()
+
+        return response?.menu ?: listOf()
     }
 
     private fun saveMenuToDatabase(menuItemsNetwork: List<MenuItemNetwork>) {
