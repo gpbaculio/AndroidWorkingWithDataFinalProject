@@ -58,7 +58,6 @@ class MainActivity : ComponentActivity() {
                     val databaseMenuItems by database.menuItemDao().getAll().observeAsState(emptyList())
 
                     // add orderMenuItems variable here
-
                     var orderMenuItems by remember { mutableStateOf(false) }
 
                     // add menuItems variable here
@@ -79,6 +78,7 @@ class MainActivity : ComponentActivity() {
                         Button(
                             onClick = {
                                 orderMenuItems = true
+                                menuItems = databaseMenuItems.sortedBy { it.title }
                             },
                             modifier = Modifier.align(Alignment.CenterHorizontally)
 
@@ -90,9 +90,11 @@ class MainActivity : ComponentActivity() {
                         var searchPhrase by remember { mutableStateOf("") }
 
                         // Add OutlinedTextField
-                        Row(modifier = Modifier
+                        Row(
+                            modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 50.dp, end = 50.dp)) {
+                            .padding(start = 50.dp, end = 50.dp)
+                        ) {
                             OutlinedTextField(
                                 leadingIcon = {
                                     Icon(
@@ -113,8 +115,21 @@ class MainActivity : ComponentActivity() {
 
                         // add is not empty check here
                         if (databaseMenuItems.isNotEmpty()) {
-                            if(orderMenuItems) {
-                                MenuItemsList(databaseMenuItems.sortedBy { it.title })
+
+                            if(orderMenuItems && searchPhrase.isEmpty()) {
+                                MenuItemsList(menuItems)
+                            } else if(orderMenuItems && searchPhrase.isNotEmpty()) {
+                                val filteredMenuItems =  menuItems.filter {
+                                    it.title.contains(searchPhrase, ignoreCase = true)
+                                }
+
+                                MenuItemsList(filteredMenuItems)
+                            }  else if (searchPhrase.isNotEmpty()) {
+                                val filteredMenuItems =  databaseMenuItems.filter {
+                                    it.title.contains(searchPhrase, ignoreCase = true)
+                                }
+
+                                MenuItemsList(filteredMenuItems)
                             }  else {
                                 MenuItemsList(databaseMenuItems)
                             }
