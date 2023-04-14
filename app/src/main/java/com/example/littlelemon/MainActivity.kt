@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ import io.ktor.client.engine.android.Android
 import io.ktor.client.request.get
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.Color
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
@@ -67,6 +69,15 @@ class MainActivity : ComponentActivity() {
                     )
 
                     // add Button code here
+                    Button(
+                        onClick = {
+
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+
+                    ) {
+                        Text(text = "Tap to Order By Name")
+                    }
 
                     // add searchPhrase variable here
 
@@ -90,7 +101,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun fetchMenu(): List<MenuItemNetwork> { 
+    private suspend fun fetchMenu(): List<MenuItemNetwork> {
         val response: MenuNetwork =
             httpClient.get("https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/littleLemonSimpleMenu.json")
                 .body()
